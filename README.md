@@ -6,13 +6,25 @@ This project implements a Live Poll decentralized application (dApp) on the Stel
 - **Multi-Wallet Integration**: Connects to both Freighter and xBull using `@creit.tech/stellar-wallets-kit`.
 - **Smart Contract Deployment**: Custom Soroban Rust smart contract deployed on the Stellar testnet.
 - **Contract Interaction**: Read (`get_votes`) and Write (`vote`) methods invoked from the frontend using the new Soroban RPC SDK.
-- **Robust Error Handling**: Handles edge cases like "Wallet Not Found", "User Rejected Request", and "Insufficient Balance".
+- **Robust Error Handling**: Handle "Wallet Not Found", "User Rejected", and "Already Voted" (simulation traps).
 - **Real-time Event Synchronization**: Periodically polls the smart contract state to update vote counts seamlessly.
 
-## 🛠 Prerequisites
-- Node.js (v18+)
-- Basic understanding of Stellar & Soroban testnet.
-- [Freighter](https://www.freighter.app/) or [xBull](https://xbull.app/) browser extension installed.
+## 🏁 Submission Deliverables
+### 1. Smart Contract Performance
+The contract is live on the **Stellar Testnet** and correctly enforces one-vote-per-wallet.
+- **Contract ID:** `CDRZCJDK7G5U4PBKLTPQL4ENKLPHHJJ4A75G6OFPKBPFPHIDRP73GDUC`
+- **Proof of successful vote call (Stellar Expert):** [View Transaction on Stellar Expert](https://stellar.expert/explorer/testnet/tx/100137efd6d87bb01bc7df17ef07ae5b376dde7f9fd6c0fdf8e428b4bd9f0a95)
+
+![Transaction Proof](./screenshots/voted_transaction.png)
+
+### 2. Multi-Wallet UI implementation
+The frontend detects and connects to both Freighter and xBull wallets gracefully.
+
+| Initial Screen | Freighter Connected | xBull Connected |
+| :---: | :---: | :---: |
+| ![Connect Option](./screenshots/initial_screen.png) | ![Freighter Success](./screenshots/freighter_connected.png) | ![xBull Success](./screenshots/xbull_connected.png) |
+
+---
 
 ## 🚀 Setup Instructions
 1. Clone the repository.
@@ -24,15 +36,7 @@ This project implements a Live Poll decentralized application (dApp) on the Stel
    ```bash
    npm run dev
    ```
-4. Open the application in your browser (usually `http://localhost:5173`).
-5. Ensure your Stellar wallet extension is active, set to the **Testnet**, and funded with at least 2 XLM to cover connection reserves.
-
-## 🏁 Submission Deliverables
-- **Live Demo Link:** *(Optional: Deploy to Vercel/Netlify and add link here)*
-- **Screenshot:** *(Optional: Add a screenshot of the multi-wallet selection UI here)*
-- **Deployed Contract Address:** `CDRZCJDK7G5U4PBKLTPQL4ENKLPHHJJ4A75G6OFPKBPFPHIDRP73GDUC`
-- **Transaction Hash of a Contract Call (Deploy & Initial Interaction):** `d782d0b30c28ca6bc962c2dd37047cbd94d012f43bd1be4b2275393a1fb5a433`
-
-> View Transaction on [Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/d782d0b30c28ca6bc962c2dd37047cbd94d012f43bd1be4b2275393a1fb5a433)
+4. Open your browser to `http://localhost:5173`.
+5. Ensure your wallet extension (Freighter or xBull) is set to **Testnet** and funded with at least 2 XLM.
 
 Enjoy the Live Poll dApp!

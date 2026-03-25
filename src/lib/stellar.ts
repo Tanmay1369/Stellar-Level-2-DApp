@@ -30,17 +30,18 @@ async function pollTransactionStatus(txHash: string) {
 export const connectWallet = async (walletId = FREIGHTER_ID): Promise<string | null> => {
   try {
     StellarWalletsKit.setWallet(walletId);
-    // request access by getting the address directly
-    const res = await StellarWalletsKit.getAddress();
+    // request access by explicitly asking the specific wallet module
+    const res = await (StellarWalletsKit as any).selectedModule.getAddress();
     return res.address;
-  } catch (error) {
-    if (String(error).includes("not installed")) {
+  } catch (error: any) {
+    const errMsg = error instanceof Error ? error.message : typeof error === 'object' && error !== null ? error.error || error.message || JSON.stringify(error) : String(error);
+    if (errMsg.includes("not installed") || errMsg.includes("not found")) {
       throw new Error("WalletNotFound");
     }
-    if (String(error).includes("rejected") || String(error).includes("User declined")) {
+    if (errMsg.includes("rejected") || errMsg.includes("User declined")) {
       throw new Error("WalletRejected");
     }
-    console.error("Error connecting wallet:", error);
+    console.error("Error connecting wallet:", errMsg);
     return null;
   }
 };
@@ -81,12 +82,15 @@ export const getPollVotes = async (): Promise<{ yes: number; no: number }> => {
       // value is an array of ScVals if it's a Tuple
       // get_votes returns (u32, u32) Tuple
       if (Array.isArray(value) && value.length >= 2) {
-        return {
+        const votes = {
           yes: value[0].u32(),
           no: value[1].u32()
         };
+        console.log("Fetched votes:", votes);
+        return votes;
       }
     }
+    console.warn("Simulation failed or retval missing in getPollVotes");
     return { yes: 0, no: 0 };
   } catch (error) {
     console.error("Failed to fetch votes:", error);
@@ -106,7 +110,7 @@ export const castVote = async (publicKey: string, voteYes: boolean): Promise<str
     const accountRes = await server.getAccount(publicKey);
     const contract = new Contract(CONTRACT_ID);
 
-    const voterVal = xdr.ScVal.scvAddress(xdr.ScAddress.scAddressTypeAccount(xdr.PublicKey.publicKeyTypeEd25519(Buffer.from(Keypair.fromPublicKey(publicKey).rawPublicKey()))));
+    const voterVal = xdr.ScVal.scvAddress(xdr.ScAddress.scAddressTypeAccount(xdr.PublicKey.publicKeyTypeEd25519(Keypair.fromPublicKey(publicKey).rawPublicKey())));
     const boolVal = xdr.ScVal.scvBool(voteYes);
 
     let tx = new TransactionBuilder(accountRes, { fee: '100000', networkPassphrase: Networks.TESTNET })
@@ -137,11 +141,15 @@ export const castVote = async (publicKey: string, voteYes: boolean): Promise<str
     if (status.status === 'SUCCESS') {
       return submitRes.hash;
     } else {
-      throw new Error(`Transaction failed heavily: ${status.status}`);
+      throw new Error(`Transaction failed: ${status.status}`);
     }
   } catch (error: any) {
-    if (String(error).includes("rejected") || String(error).includes("User declined")) {
+    const errMsg = String(error);
+    if (errMsg.includes("rejected") || errMsg.includes("User declined")) {
       throw new Error("WalletRejected");
+    }
+    if (errMsg.includes("UnreachableCodeReached") || errMsg.includes("InvalidAction")) {
+      throw new Error("Simulation failed: You may have already voted with this wallet, or the contract rejected the call.");
     }
     throw error;
   }
