@@ -1,0 +1,27 @@
+
+> vite-temp@0.0.0 setup
+> node scripts/setup_vault.js
+
+🚀 Starting Full Automation: Build -> Deploy -> Update Frontend
+
+📦 Step 1: Building Soroban Contract...
+    Finished `release` profile [optimized] target(s) in 0.05s
+✅ Build successful!
+
+🌐 Step 2: Deploying & Initializing on Stellar Testnet...
+Generated deployer account: GBYV7K47BWPHLYERSS2IXOW3GN5TAYVFWMYLQ2477D55Z3OO5MXV3FAR
+Secret key: SAQ2KXDWDYM3MUZY4E2FPOXFKLD7SMBCTZFVNDU4UAM4YI4HFAEQKT2L
+Funding account GBYV7K47BWPHLYERSS2IXOW3GN5TAYVFWMYLQ2477D55Z3OO5MXV3FAR...
+WASM Path: ./contracts/milestone/target/wasm32-unknown-unknown/release/soroban_savings_vault.wasm
+Calculated WASM Hash: 4c22db71a57f952174d67a92a4b74523c4fd0d37bb2aeca37cb31cdf2d21be69
+Uploading WASM...
+WASM upload submitted. Hash: 02d17f1997a40f69e7b339563fb5370502cb901560a5db83dac12a4333da15f5
+Deploying Contract...
+Submitting Create Contract transaction...
+Standard extraction failed, trying fallback...
+Deploy successful!
+NEW_CONTRACT_ID: CCJODJCO4YGIQA6VJIB3TFSO2V62JKH5XJVEVZYI2TRSIKCTBBNJ57KQ
+Initializing contract with Native XLM...
+
+❌ Automation failed:
+Unsupported address type: CDLZFC3SYJYDUI7K3YAD7FSZVE3OZRMLSXM2BCS2A3OTIOBBS4S5CIZ7

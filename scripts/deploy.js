@@ -1,8 +1,10 @@
 import pkg from '@stellar/stellar-sdk';
-const { Keypair, Server, Networks, TransactionBuilder, Operation, Asset, Contract } = pkg;
+const { Keypair, rpc, Networks, TransactionBuilder, Operation, Contract, Address } = pkg;
 import fs from 'fs';
 
-const server = new Server('https://soroban-testnet.stellar.org');
+import crypto from 'crypto';
+
+const server = new rpc.Server('https://soroban-testnet.stellar.org');
 const networkPassphrase = Networks.TESTNET;
 
 async function fundAccount(publicKey) {
@@ -14,7 +16,7 @@ async function fundAccount(publicKey) {
     }
 }
 
-async function deploy() {
+export async function deploy() {
     const keypair = Keypair.random();
     console.log(`Generated deployer account: ${keypair.publicKey()}`);
     console.log(`Secret key: ${keypair.secret()}`);
@@ -31,14 +33,38 @@ async function deploy() {
         account = await server.getAccount(keypair.publicKey());
     }
 
-    const wasmHashHex = '244dd1eff19a3235e9d8f528ff4d144e91076aada4cfc917e70a2316c73b3eb0';
-    const wasmHashBuffer = Buffer.from(wasmHashHex, 'hex');
+    const wasmPath = './contracts/milestone/target/wasm32-unknown-unknown/release/soroban_savings_vault.wasm';
+    if (!fs.existsSync(wasmPath)) throw new Error(`WASM file not found at ${wasmPath}. Run cargo build first!`);
+    const wasmBuffer = fs.readFileSync(wasmPath);
+    const wasmHash = crypto.createHash('sha256').update(wasmBuffer).digest();
+    
+    console.log("WASM Path:", wasmPath);
+    console.log("Calculated WASM Hash:", wasmHash.toString('hex'));
 
-    console.log("Deploying Contract from Wasm Hash...");
-    let tx = new TransactionBuilder(account, { fee: '100000', networkPassphrase })
+    console.log("Uploading WASM...");
+    let uploadTx = new TransactionBuilder(account, { fee: '1000000', networkPassphrase })
+        .addOperation(Operation.uploadContractWasm({ wasm: wasmBuffer }))
+        .setTimeout(30)
+        .build();
+
+    let preparedUpload = await server.prepareTransaction(uploadTx);
+    preparedUpload.sign(keypair);
+    let uploadRes = await server.sendTransaction(preparedUpload);
+    
+    if (uploadRes.status !== 'ERROR') {
+        console.log("WASM upload submitted. Hash:", uploadRes.hash);
+        await pollTransactionStatus(uploadRes.hash);
+    } else {
+        console.log("WASM upload status:", uploadRes.status);
+    }
+
+    console.log("Deploying Contract...");
+    account = await server.getAccount(keypair.publicKey());
+    
+    let tx = new TransactionBuilder(account, { fee: '1000000', networkPassphrase })
         .addOperation(Operation.createCustomContract({
-            address: keypair.publicKey(),
-            wasmHash: wasmHashBuffer
+            address: new Address(keypair.publicKey()),
+            wasmHash: wasmHash
         }))
         .setTimeout(30)
         .build();
@@ -51,11 +77,54 @@ async function deploy() {
 
     if (txRes.status === 'ERROR') {
         console.error("Deploy failed:", JSON.stringify(txRes, null, 2));
-        return;
+        throw new Error("Deploy failed");
     }
 
+    const status = await pollTransactionStatus(txRes.hash);
+    
+    let contractId;
+    try {
+        const addrXdr = status.resultMetaXdr.v3().sorobanMeta().returnValue();
+        contractId = Address.fromScVal(addrXdr).toString();
+    } catch (e) {
+        console.log("Standard extraction failed, trying fallback...");
+        if (status.returnValue) {
+            contractId = Address.fromScVal(status.returnValue).toString();
+        } else {
+            throw new Error("Could not extract Contract ID from transaction result.");
+        }
+    }
+    
     console.log("Deploy successful!");
-    console.log(txRes.returnValue);
+    console.log("NEW_CONTRACT_ID:", contractId);
+
+    // Initialize with Native XLM immediately
+    console.log("Initializing contract with Native XLM...");
+    const NATIVE_TOKEN = 'CDLZFC3SYJYDUI7K3YAD7FSZVE3OZRMLSXM2BCS2A3OTIOBBS4S5CIZ7';
+    account = await server.getAccount(keypair.publicKey());
+    const initContract = new Contract(contractId);
+    let initTx = new TransactionBuilder(account, { fee: '1000000', networkPassphrase })
+        .addOperation(initContract.call('init', Address.fromString(NATIVE_TOKEN).toScVal()))
+        .setTimeout(30)
+        .build();
+    let preparedInit = await server.prepareTransaction(initTx);
+    preparedInit.sign(keypair);
+    let initRes = await server.sendTransaction(preparedInit);
+    await pollTransactionStatus(initRes.hash);
+    console.log("Initialization successful!");
+
+    return contractId;
 }
 
-deploy().catch(console.error);
+async function pollTransactionStatus(hash) {
+    let status = await server.getTransaction(hash);
+    while (status.status === 'NOT_FOUND' || status.status === 'PENDING') {
+        await new Promise(r => setTimeout(r, 2000));
+        status = await server.getTransaction(hash);
+    }
+    return status;
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+    deploy().catch(console.error);
+}
