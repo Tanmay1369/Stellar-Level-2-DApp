@@ -100,7 +100,8 @@ export async function deploy() {
 
     // Initialize with Native XLM immediately
     console.log("Initializing contract with Native XLM...");
-    const NATIVE_TOKEN = 'CDLZFC3SYJYDUI7K3YAD7FSZVE3OZRMLSXM2BCS2A3OTIOBBS4S5CIZ7';
+    const { Asset } = pkg;
+    const NATIVE_TOKEN = Asset.native().contractId(networkPassphrase);
     account = await server.getAccount(keypair.publicKey());
     const initContract = new Contract(contractId);
     let initTx = new TransactionBuilder(account, { fee: '1000000', networkPassphrase })

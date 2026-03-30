@@ -4,7 +4,7 @@ import { nativeToScVal, rpc, TransactionBuilder, Networks, Contract, Keypair, xd
 export const server = new rpc.Server('https://soroban-testnet.stellar.org');
 
 // The savings vault contract ID — deployed to testnet
-export const VAULT_CONTRACT_ID = 'CDUNTUIHUEXFYHTNDGEMSDHWAUOGPMIS4JR7R6UFIBO7HLHUJMFWHAL3';
+export const VAULT_CONTRACT_ID = 'CCPBT4GJWM7ZNPF2GKV6AWPNAU5RSOJ576VACZTVHIEV5NHBLRMISMJC';
 
 // Native XLM on Testnet
 const NATIVE_TOKEN = 'CDLZFC3SYJYDUI7K3YAD7FSZVE3OZRMLSXM2BCS2A3OTIOBBS4S5CIZ7';
