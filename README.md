@@ -12,7 +12,7 @@ A decentralized savings dApp built on Soroban. Lock your XLM on-chain and only w
 
 ## 🔗 Submission Requirements
 
-- **Live Demo:** [Insert Vercel/Netlify Link Here]
+- **Live Demo:** https://stellarlevel-dapp.vercel.app
 - **Demo Video (1-min):** https://www.loom.com/share/4d860a52aa6945ee959b803e62bb855b
 - **Test Output Screenshot:**
   > *(Take a screenshot of `cargo test` passing and add it here, e.g. `![Tests Passed](./tests-screenshot.png)`)*
