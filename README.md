@@ -13,7 +13,7 @@ A decentralized savings dApp built on Soroban. Lock your XLM on-chain and only w
 ## 🔗 Submission Requirements
 
 - **Live Demo:** [Insert Vercel/Netlify Link Here]
-- **Demo Video (1-min):** [Insert YouTube/Loom Link Here]
+- **Demo Video (1-min):** https://www.loom.com/share/4d860a52aa6945ee959b803e62bb855b
 - **Test Output Screenshot:**
   > *(Take a screenshot of `cargo test` passing and add it here, e.g. `![Tests Passed](./tests-screenshot.png)`)*
 
@@ -21,7 +21,7 @@ A decentralized savings dApp built on Soroban. Lock your XLM on-chain and only w
 - [x] Mini-dApp fully functional
 - [x] Minimum 3 tests passing (5/5 tests)
 - [x] README complete
-- [ ] Demo video recorded (1 min)
+- [x] Demo video recorded (1 min)
 - [x] Public GitHub repository
 - [x] 3+ meaningful commits
 
