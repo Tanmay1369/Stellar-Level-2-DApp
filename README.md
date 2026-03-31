@@ -15,9 +15,9 @@ A production-ready decentralized savings dApp built on Soroban. Lock your XLM on
 - **Demo Video:** [Insert Loom link here]
 
 ### Contract Details & Transaction Hashes
-- **Vault Contract Address:** `CAJDLWMUTCA3OTUTPZ4HM6KNZXASVPUPK5LIRNATF45OZYFKDIQSDLPK`
-- **sXLM Token Contract Address:** `CB6QRKAAKUPWLXWSCYR6KLNNHIVKQJGY3J4OTRWOHQAZSLXT6DSGRWXI`
-- **Deployment Transaction Hash:** *(Available on Testnet via Stellar Expert)*
+- **Vault Contract Address:** [`CAJDLWMUTCA3OTUTPZ4HM6KNZXASVPUPK5LIRNATF45OZYFKDIQSDLPK`](https://stellar.expert/explorer/testnet/contract/CAJDLWMUTCA3OTUTPZ4HM6KNZXASVPUPK5LIRNATF45OZYFKDIQSDLPK)
+- **sXLM Token Contract Address:** [`CB6QRKAAKUPWLXWSCYR6KLNNHIVKQJGY3J4OTRWOHQAZSLXT6DSGRWXI`](https://stellar.expert/explorer/testnet/contract/CB6QRKAAKUPWLXWSCYR6KLNNHIVKQJGY3J4OTRWOHQAZSLXT6DSGRWXI)
+- **Deployment & Interaction Record:** Full history of inter-contract deployments and `mint`/`burn` invocations can be tracked directly through the Stellar Expert tracker associated with the Vault contract above.
 
 ### Screenshots
 | CI/CD Pipeline Passing | Mobile-Responsive View |
