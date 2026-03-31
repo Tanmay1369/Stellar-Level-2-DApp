@@ -1,47 +1,61 @@
-# 🏦 Savings Vault — Stellar Orange Belt (Level 3)
+# 🏦 Savings Vault — Stellar Green Belt (Level 4)
 
-A decentralized savings dApp built on Soroban. Lock your XLM on-chain and only withdraw when your savings goal is reached or a time lock expires. No banks, no trust required.
+A production-ready decentralized savings dApp built on Soroban. Lock your XLM on-chain and only withdraw when your savings goal is reached or a time lock expires. Now upgraded with custom `sXLM` receipt tokens and cross-contract interactions!
 
-## 📝 Level 3 Features
-- **On-Chain Asset Handling**: Real XLM deposits and withdrawals via the native Soroban token interface
-- **Dual Unlock Mechanism**: Withdraw when goal is met OR when time lock expires — whichever comes first
-- **Loading States**: Skeleton screens and transaction progress indicators
-- **Caching**: 30-second localStorage cache for vault state — instant loads
-- **5 Unit Tests**: Full coverage of create, deposit, withdraw (goal), withdraw (time), and early withdraw panic
-- **Premium UI**: Circular SVG progress ring, glassmorphism card, smooth animations
+## 📝 Level 4 Features (Green Belt)
+- **Advanced Inter-contract Logic**: Features a master Vault contract that communicates natively with a secondary SEP-41 Token contract (`sXLM`).
+- **Custom Token Issue**: Whenever deposits are processed, the Vault securely mints equivalent `sXLM` yield tokens to the user's Freighter wallet by calling the child contract. When the user withdraws, these tokens are instantly burned.
+- **Production CI/CD**: Fully configured GitHub Actions pipeline running `cargo test` across all workspaces automatically on every commit.
+- **Real-Time Event Processing**: Advanced structured Soroban Events (`VaultCreated`, `Deposit`, `Withdraw`) emitted for indexers.
+- **Mobile-Responsive Premium UI**: Crafted with a mobile-first TailwindCSS interface with bottom-navigation elements.
 
-## 🔗 Submission Requirements
+## 🔗 Green Belt Submission Requirements
 
-- **Live Demo:** https://stellarlevel-dapp.vercel.app
-- **Demo Video (1-min):** https://www.loom.com/share/4d860a52aa6945ee959b803e62bb855b
-- **Test Output Screenshot:**
-  > *(Take a screenshot of `cargo test` passing and add it here, e.g. `![Tests Passed](./tests-screenshot.png)`)*
+- **Live Demo:** https://stellarlevel-dapp.vercel.app  *(Vercel Auto-deploy active)*
+- **Demo Video:** [Insert Loom link here]
+
+### Contract Details & Transaction Hashes
+- **Vault Contract Address:** `CAJDLWMUTCA3OTUTPZ4HM6KNZXASVPUPK5LIRNATF45OZYFKDIQSDLPK`
+- **sXLM Token Contract Address:** `CB6QRKAAKUPWLXWSCYR6KLNNHIVKQJGY3J4OTRWOHQAZSLXT6DSGRWXI`
+- **Deployment Transaction Hash:** *(Available on Testnet via Stellar Expert)*
+
+### Screenshots
+| CI/CD Pipeline Passing | Mobile-Responsive View |
+| :---: | :---: |
+| [![Build Status](https://github.com/Tanmay1369/Stellar-Level-2-DApp/actions/workflows/ci.yml/badge.svg)](https://github.com/Tanmay1369/Stellar-Level-2-DApp/actions) | *(Take screenshot of mobile layout and insert here)* |
 
 ## 🏁 Submission Checklist
-- [x] Mini-dApp fully functional
-- [x] Minimum 3 tests passing (5/5 tests)
-- [x] README complete
-- [x] Demo video recorded (1 min)
+- [x] Inter-contract call working (Vault calls sXLM Token)
+- [x] Custom token or pool deployed (`sXLM` Mintable Token)
+- [x] CI/CD running 
+- [x] Mobile responsive 
+- [x] Minimum 8+ meaningful commits (12+ commits made to branch)
 - [x] Public GitHub repository
-- [x] 3+ meaningful commits
+- [x] README with complete documentation
 
 ## 🛠️ Running Locally
 
-### Smart Contract Tests
+### 1. Smart Contract CI locally
 ```bash
-cd contracts/milestone
-cargo test
+cargo test --manifest-path contracts/sxlm-token/Cargo.toml
+cargo test --manifest-path contracts/milestone/Cargo.toml
 ```
-Expected: `5 passed; 0 failed`
 
-### Frontend
+### 2. Auto-Deployment (WASM & Initialize)
+```bash
+npm run setup
+```
+*(This will compile everything, upload it to Stellar Testnet, initialize both the token and the vault, and dynamically assign the admin authority.)*
+
+### 3. Start the Frontend
 ```bash
 npm install
 npm run dev
 ```
 
-## 🔗 How It Works
-1. **Create Vault** — Set a savings goal (XLM) and optional time-lock date
-2. **Deposit** — Send XLM directly to the vault contract on-chain
-3. **Withdraw** — Funds release only when the goal is met OR the date has passed
-4. **Explorer** — Every transaction is verifiable on Stellar Expert Testnet
+## 🏗️ Architecture
+
+1. **Contracts/sxlm-token**: A compliant standalone token matching the SEP-41 standard, programmed with an administrator `admin`.
+2. **Contracts/milestone**: The core Savings Vault logic. Registered as the strict `admin` of the `sXLM Token` during initialization.
+3. Upon **Deposit**, the Vault proxies a cross-contract message to mint receipt tokens.
+4. Upon **Withdraw**, the Vault evaluates local constraints and proxies a cross-contract message to burn those receipts before releasing the locked native XLM.
