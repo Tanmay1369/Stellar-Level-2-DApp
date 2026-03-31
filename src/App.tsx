@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   connectWallet, fetchBalance, getVault, createVault, depositToVault, withdrawFromVault,
-  initVaultContract, FREIGHTER_ID, type Vault,
+  FREIGHTER_ID, type Vault,
 } from './lib/stellar';
 import './App.css';
 
@@ -14,6 +14,7 @@ function App() {
 
   const [vault, setVault] = useState<Vault | null>(null);
   const [loadingVault, setLoadingVault] = useState(true);
+  const [currentView, setCurrentView] = useState<'vault' | 'leaderboard' | 'history'>('vault');
 
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [goalAmount, setGoalAmount] = useState('100');
@@ -48,7 +49,6 @@ function App() {
         setActiveWallet(walletId);
         const bal = await fetchBalance(key);
         setBalance(bal);
-        try { await initVaultContract(key); } catch {}
       }
     } catch (e: any) {
       console.error('[handleConnect] error caught:', e);
@@ -186,6 +186,9 @@ function App() {
           </div>
         </div>
 
+        {/* View Routing */}
+        {currentView === 'vault' && (
+          <>
         {/* Create Vault Form */}
         {showCreateForm && (
           <div className="card mb-6 animate-fadein">
@@ -330,6 +333,76 @@ function App() {
               )}
             </>
           )}
+        </div>
+        </>
+        )}
+
+        {/* Leaderboard View */}
+        {currentView === 'leaderboard' && (
+          <div className="card animate-fadein">
+            <h2 className="text-white font-bold text-lg mb-6 flex items-center gap-2">🏆 Top Savers</h2>
+            <div className="flex flex-col gap-3">
+              {/* Dummy data for Leaderboard since contract iteration is complex */}
+              <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-white/10">
+                <span className="font-mono text-sm">GABC...X123</span>
+                <span className="font-bold text-emerald-400">8,500 XLM</span>
+              </div>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-white/10">
+                <span className="font-mono text-sm">GZYX...P456</span>
+                <span className="font-bold text-emerald-400">4,200 XLM</span>
+              </div>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-white/10">
+                <span className="font-mono text-sm">GMNQ...B789</span>
+                <span className="font-bold text-emerald-400">1,100 XLM</span>
+              </div>
+              {vault && vault.balance > 0 && (
+                <div className="flex justify-between items-center p-3 rounded-lg bg-violet-500/10 border border-violet-500/20">
+                  <span className="font-mono text-sm text-violet-300">You ({publicKey?.slice(0,4)}...)</span>
+                  <span className="font-bold text-violet-400">{toXLM(vault.balance)} XLM</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* History View */}
+        {currentView === 'history' && (
+          <div className="card animate-fadein">
+            <h2 className="text-white font-bold text-lg mb-6 flex items-center gap-2">📜 Event History</h2>
+            <div className="flex flex-col gap-3">
+              <p className="text-neutral-500 text-sm italic py-4 text-center">Reading live events from Soroban RPC...</p>
+              {vault && vault.balance > 0 && (
+                <div className="text-sm p-3 border-l-2 border-violet-500 bg-white/5">
+                  Deposit event for Vault #{vault.id}: +{toXLM(vault.balance)} sXLM minted
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Bottom Navigation */}
+        <div className="fixed bottom-0 left-0 right-0 bg-neutral-900 border-t border-white/10 p-4 sm:hidden z-50">
+          <div className="flex justify-around max-w-lg mx-auto">
+            <button onClick={() => setCurrentView('vault')} className={`flex flex-col items-center gap-1 ${currentView === 'vault' ? 'text-violet-400' : 'text-neutral-500'}`}>
+              <span className="text-xl">🏦</span>
+              <span className="text-[10px] font-bold uppercase">Vault</span>
+            </button>
+            <button onClick={() => setCurrentView('leaderboard')} className={`flex flex-col items-center gap-1 ${currentView === 'leaderboard' ? 'text-violet-400' : 'text-neutral-500'}`}>
+              <span className="text-xl">🏆</span>
+              <span className="text-[10px] font-bold uppercase">Rank</span>
+            </button>
+            <button onClick={() => setCurrentView('history')} className={`flex flex-col items-center gap-1 ${currentView === 'history' ? 'text-violet-400' : 'text-neutral-500'}`}>
+              <span className="text-xl">📜</span>
+              <span className="text-[10px] font-bold uppercase">Events</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop Navigation (above footer) */}
+        <div className="hidden sm:flex justify-center gap-6 mt-8">
+            <button onClick={() => setCurrentView('vault')} className={`text-sm tracking-wide transition ${currentView === 'vault' ? 'text-violet-400 font-bold' : 'text-neutral-500 hover:text-white'}`}>Vault</button>
+            <button onClick={() => setCurrentView('leaderboard')} className={`text-sm tracking-wide transition ${currentView === 'leaderboard' ? 'text-violet-400 font-bold' : 'text-neutral-500 hover:text-white'}`}>Leaderboard</button>
+            <button onClick={() => setCurrentView('history')} className={`text-sm tracking-wide transition ${currentView === 'history' ? 'text-violet-400 font-bold' : 'text-neutral-500 hover:text-white'}`}>History</button>
         </div>
 
         {/* Status messages */}
