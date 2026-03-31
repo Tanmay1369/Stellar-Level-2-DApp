@@ -22,7 +22,7 @@ A production-ready decentralized savings dApp built on Soroban. Lock your XLM on
 ### Screenshots
 | CI/CD Pipeline Passing | Mobile-Responsive View |
 | :---: | :---: |
-| [![Build Status](https://github.com/Tanmay1369/Stellar-Level-2-DApp/actions/workflows/ci.yml/badge.svg)](https://github.com/Tanmay1369/Stellar-Level-2-DApp/actions) | *(Take screenshot of mobile layout and insert here)* |
+| [![Build Status](https://github.com/Tanmay1369/Stellar-Level-2-DApp/actions/workflows/ci.yml/badge.svg)](https://github.com/Tanmay1369/Stellar-Level-2-DApp/actions) | ![Mobile Responsive View](./screenshots/mobile-view.png) |
 
 ## 🏁 Submission Checklist
 - [x] Inter-contract call working (Vault calls sXLM Token)
