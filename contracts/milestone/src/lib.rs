@@ -17,12 +17,13 @@ pub struct SavingsVaultContract;
 
 #[contractimpl]
 impl SavingsVaultContract {
-    // Initialize with native XLM token address
-    pub fn init(env: Env, token: Address) {
+    // Initialize with native XLM token address and the sXLM custom token address
+    pub fn init(env: Env, token: Address, sxlm_token: Address) {
         if env.storage().instance().has(&symbol_short!("token")) {
             panic!("ERR_ALREADY_INIT");
         }
         env.storage().instance().set(&symbol_short!("token"), &token);
+        env.storage().instance().set(&symbol_short!("sxlm"), &sxlm_token);
     }
 
     // Create a new savings vault
@@ -42,6 +43,9 @@ impl SavingsVaultContract {
 
         env.storage().persistent().set(&count, &vault);
         env.storage().instance().set(&symbol_short!("count"), &count);
+
+        env.events().publish((soroban_sdk::Symbol::new(&env, "VaultCreated"), count), owner);
+
         count
     }
 
@@ -65,8 +69,17 @@ impl SavingsVaultContract {
         // Transfer XLM from depositor to this contract
         client.transfer(&from, &env.current_contract_address(), &amount);
 
+        // Mint sXLM to user via cross-contract call
+        let sxlm_addr: Address = env.storage().instance()
+            .get(&symbol_short!("sxlm"))
+            .expect("ERR_NO_SXL_INIT");
+        use soroban_sdk::{vec, IntoVal};
+        env.invoke_contract::<()>(&sxlm_addr, &symbol_short!("mint"), vec![&env, from.into_val(&env), amount.into_val(&env)]);
+
         vault.balance += amount;
         env.storage().persistent().set(&vault_id, &vault);
+
+        env.events().publish((symbol_short!("Deposit"), vault_id), amount);
     }
 
     // Withdraw funds — allowed if goal is met OR time lock has expired
@@ -94,8 +107,17 @@ impl SavingsVaultContract {
         // Transfer all funds back to owner
         client.transfer(&env.current_contract_address(), &vault.owner, &vault.balance);
 
+        // Burn sXLM from user via cross-contract call
+        let sxlm_addr: Address = env.storage().instance()
+            .get(&symbol_short!("sxlm"))
+            .expect("ERR_NO_SXL_INIT");
+        use soroban_sdk::{vec, IntoVal};
+        env.invoke_contract::<()>(&sxlm_addr, &symbol_short!("burn"), vec![&env, vault.owner.into_val(&env), vault.balance.into_val(&env)]);
+
         vault.withdrawn = true;
         env.storage().persistent().set(&vault_id, &vault);
+
+        env.events().publish((symbol_short!("Withdraw"), vault_id), vault.balance);
     }
 
     // Read vault data
