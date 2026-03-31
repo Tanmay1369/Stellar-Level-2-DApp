@@ -12,7 +12,7 @@ A production-ready decentralized savings dApp built on Soroban. Lock your XLM on
 ## 🔗 Green Belt Submission Requirements
 
 - **Live Demo:** https://stellarlevel-dapp.vercel.app  *(Vercel Auto-deploy active)*
-- **Demo Video:** [Insert Loom link here]
+- **Demo Video:** ![Live Demo Recording](./screenshots/dapp_demo_video.webp)
 
 ### Contract Details & Transaction Hashes
 - **Vault Contract Address:** [`CAJDLWMUTCA3OTUTPZ4HM6KNZXASVPUPK5LIRNATF45OZYFKDIQSDLPK`](https://stellar.expert/explorer/testnet/contract/CAJDLWMUTCA3OTUTPZ4HM6KNZXASVPUPK5LIRNATF45OZYFKDIQSDLPK)
